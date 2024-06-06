@@ -15,8 +15,8 @@ if __name__=='__main__':
     b3.place(x=195,y=90)
     b4=Button(w,text='select multiple files',command=browse_xyz)
     b4.place(x=85,y=150)
-    path="C:\\Users\\br\\Desktop"
-    os.chdir(path)
+    # path="C:\\Users\\br\\Desktop"
+    # os.chdir(path)
     b1['command']=partial(browse,b1,b2,b3,b4)
     b3['command']=partial(back,b1,b2,b3,b4)
     b5=Button(w,text="❓")

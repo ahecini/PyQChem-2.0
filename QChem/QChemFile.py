@@ -13,7 +13,8 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from QChem.QChemPlot import generate_plot_generation,generate_plot_index,generate_plot_xyz,coordinate_calcul
 from QChem.HoverObject import CreateHover
 from QChem.QChemView import view_xyz2
-
+dir = os.path.dirname(__file__)
+os.chdir(dir)
 '''this module encompasses all the functions needed for file processing of different file
 types used in quantum chemistry such as :cif,vasp,res and xyz.'''
 '''find_ending:used to find the ending of a generation to enable seperation and sorting
@@ -131,8 +132,10 @@ def browse_txt(s11):
         new_xy=[] #we create a list with the window coordinates corresponding to the plot 
         for i in range(0,len(xy)):
             new_xy.append(coordinate_calcul(xy[i][0],xy[i][1],0,r,np.min(nrj),np.max(nrj)))
-        path="C:\\Users\\br\\Desktop"
-        os.chdir(path)
+        dir = os.path.dirname(__file__)
+        os.chdir(dir)
+        #path="C:\\Users\\br\\Desktop"
+        #os.chdir(path)
         fen=Tk()
         fen.title('list of existing generations')
         fen.geometry("300x300")
@@ -207,8 +210,10 @@ def browse(b1,b2,b3,b4):
         #we calculate the window coordinates
         for i in range(0,r):
             new_xy.append(coordinate_calcul(xy[i][0],xy[i][1],0,r-1,np.min(nrj),np.max(nrj)))
-        path="C:\\Users\\br\\Desktop"
-        os.chdir(path)
+        dir = os.path.dirname(__file__)
+        os.chdir(dir)
+        #path="C:\\Users\\br\\Desktop"
+        #os.chdir(path)
         fen=Tk()
         fen.title('list of existing indexes')
         fen.geometry("300x300")
@@ -268,93 +273,97 @@ def readable(x):
         return False 
 """browse_xyz: used to browse for a folder that contains the files we want to visualize"""
 def browse_xyz():
-    data=[]
-    datalist=[]
-    p=filedialog.askdirectory()
-    path=str(p)
-    file_list=os.listdir(path)
-    track=0
-    to_delete=[]
-    for a in file_list:
-        path2=path+'/'+a
-        track+=1
-        if readable(path2) and (path2.split('.')[1]!='tar' and path2.split('.')[1]!='zip' and path2.split('.')[1]!='tgz' and path2.split('.')[1]!='rar') :    
-            f=open(path2)
-            f=f.read().split()
-            x=0
-            space_found=False
-            energy_found=False
-            for b in f:
-                if 'spacegroup=' in b and not space_found:
-                    data.append(b.split('=')[1])
-                    x+=1
-                    space_found=True
-                if 'energy=' in b and not energy_found:
-                    data.append(b.split('=')[1])
-                    x+=1
-                    energy_found=True
-                if x==2:
+   try: 
+        data=[]
+        datalist=[]
+        p=filedialog.askdirectory()
+        path=str(p)
+        file_list=os.listdir(path)
+        track=0
+        to_delete=[]
+        for a in file_list:
+            path2=path+'/'+a
+            track+=1
+            if readable(path2) and (path2.split('.')[1]!='tar' and path2.split('.')[1]!='zip' and path2.split('.')[1]!='tgz' and path2.split('.')[1]!='rar') :    
+                f=open(path2)
+                f=f.read().split()
+                x=0
+                space_found=False
+                energy_found=False
+                for b in f:
+                    if 'spacegroup=' in b and not space_found:
+                        data.append(b.split('=')[1])
+                        x+=1
+                        space_found=True
+                    if 'energy=' in b and not energy_found:
+                        data.append(b.split('=')[1])
+                        x+=1
+                        energy_found=True
+                    if x==2:
+                            datalist.append(data)
+                            data=[]
+                            break 
+                else:
+                    if not space_found and not energy_found:
+                        datalist.append(['0.0','no spacegroup'])
+                    elif not space_found:
+                        data.append('no spacegroup')
                         datalist.append(data)
-                        data=[]
-                        break 
             else:
-                if not space_found and not energy_found:
-                    datalist.append(['0.0','no spacegroup'])
-                elif not space_found:
-                    data.append('no spacegroup')
-                    datalist.append(data)
+                to_delete.append(a)
+        for a in to_delete:
+            file_list.remove(a)
+        for i in range(len(datalist)):
+            try:
+                datalist[i][0]=float(datalist[i][0])
+                here=1
+            except:
+                datalist[i][1]=float(datalist[i][1])
+                here=2
+            datalist[i].insert(0,i+1)
+        xy=[]
+        for i in range(len(datalist)):
+            xy.append(datalist[i][0:2])
+        if len(xy)<=105:
+            r=len(xy)
         else:
-            to_delete.append(a)
-    for a in to_delete:
-        file_list.remove(a)
-    for i in range(len(datalist)):
-        try:
-            datalist[i][0]=float(datalist[i][0])
-            here=1
-        except:
-            datalist[i][1]=float(datalist[i][1])
-            here=2
-        datalist[i].insert(0,i+1)
-    xy=[]
-    for i in range(len(datalist)):
-        xy.append(datalist[i][0:2])
-    if len(xy)<=105:
-        r=len(xy)
-    else:
-        r=100
-    new_xy=[]
-    nrj=[]
-    for i in range(len(datalist)):
-        nrj.append(datalist[i][here])
-    if np.max(nrj)!=0.0 or np.min(nrj)!=0.0:
-        for i in range(0,r):
-            new_xy.append(coordinate_calcul(xy[i][0],xy[i][1],0,r-1,np.min(nrj),np.max(nrj)))
-    path="C:\\Users\\br\\Desktop"
-    os.chdir(path)
-    #if there is no energy a plot cannot be generated therefore the files can only be viewed
-    if np.max(nrj)==0.0 and np.min(nrj)==0.0:
-        fen1=Tk()
-        fen1.title('found files')
-        fen1.geometry("300x300")
-        options_list=file_list.copy()
-        value_inside=StringVar(fen1)
-        value_inside.set(options_list[1])
-        question_menu =OptionMenu(fen1, value_inside, *options_list) 
-        question_menu.pack() 
-        submit_button = Button(fen1, text='view structure')           
-        submit_button['command']=partial(view_xyz2,p,value_inside)
-        submit_button.pack()  
-    else:
-        fen=Tk()
-        fen.title('list of existing indexes')
-        fen.geometry("300x300")
-        options_list=list_index(len(nrj)-1)
-        value_inside=StringVar(fen)
-        value_inside.set('choose')
-        question_menu =OptionMenu(fen, value_inside, *options_list) 
-        question_menu.pack() 
-        submit_button = Button(fen, text='generate plot') 
-        submit_button.pack()  
-        submit_button["command"]=partial(generate_plot_xyz,xy,nrj,datalist,file_list,str(p),value_inside)
-        fen.mainloop() 
-    
+            r=100
+        new_xy=[]
+        nrj=[]
+        for i in range(len(datalist)):
+            nrj.append(datalist[i][here])
+        if np.max(nrj)!=0.0 or np.min(nrj)!=0.0:
+            for i in range(0,r):
+                new_xy.append(coordinate_calcul(xy[i][0],xy[i][1],0,r-1,np.min(nrj),np.max(nrj)))
+        dir = os.path.dirname(__file__)
+        os.chdir(dir)
+        #path="C:\\Users\\br\\Desktop"
+        #os.chdir(path)
+        #if there is no energy a plot cannot be generated therefore the files can only be viewed
+        if np.max(nrj)==0.0 and np.min(nrj)==0.0:
+            fen1=Tk()
+            fen1.title('found files')
+            fen1.geometry("300x300")
+            options_list=file_list.copy()
+            value_inside=StringVar(fen1)
+            value_inside.set(options_list[1])
+            question_menu =OptionMenu(fen1, value_inside, *options_list) 
+            question_menu.pack() 
+            submit_button = Button(fen1, text='view structure')           
+            submit_button['command']=partial(view_xyz2,p,value_inside)
+            submit_button.pack()  
+        else:
+            fen=Tk()
+            fen.title('list of existing indexes')
+            fen.geometry("300x300")
+            options_list=list_index(len(nrj)-1)
+            value_inside=StringVar(fen)
+            value_inside.set('choose')
+            question_menu =OptionMenu(fen, value_inside, *options_list) 
+            question_menu.pack() 
+            submit_button = Button(fen, text='generate plot') 
+            submit_button.pack()  
+            submit_button["command"]=partial(generate_plot_xyz,xy,nrj,datalist,file_list,str(p),value_inside)
+            fen.mainloop() 
+   except:
+        return

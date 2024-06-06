@@ -10,6 +10,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 from QChem.HoverObject import CreateToolTip
 from QChem.QChemView import letmesee_poscar,letmesee_res,view_xyz
+dir = os.path.dirname(__file__)
+os.chdir(dir)
 '''This module encompasses all the functions needed to generate the plots 
 required in the app'''
 '''also the plot functions are kind of redundant so to check the full comments refer to the
@@ -258,7 +260,9 @@ that this one takes as an input a list of files (xyz,cif,vasp) and plots them li
 file providing that energy is stated"""
 """N.B: the structures are ordered in energy value before put on the plot"""
 def generate_plot_xyz(xy,nrj,datalist,file_list,path,value_inside):
-    os.chdir("C:\\Users\\br\\Desktop")
+    #os.chdir("C:\\Users\\br\\Desktop")
+    dir = os.path.dirname(__file__)
+    os.chdir(dir)
     img=Image.open('here.gif')
     ph=ImageTk.PhotoImage(img)
     interval=value_inside.get()
