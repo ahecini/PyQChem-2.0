@@ -3,7 +3,7 @@ from functools import partial
 import os
 from QChem.QChemFile import browse,browse_xyz,back
 from QChem.HoverObject import CreateToolTip
-
+"""this is the script to run to start with the application"""
 if __name__=='__main__':
     w=Tk()
     w.geometry("300x200")
